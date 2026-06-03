@@ -1,4 +1,14 @@
-# pipeviz
+```
+          ║        ║   ║════╗
+          ╚════╗   ╚═══║════║═══════╗                  ╔════
+     ██████╗ ██╣██████╗║███████╗██╗ ║ ██╗██╗███████╗   ║
+     ██╔══██╗██║██╔══██╣██╔════╝██║ ║ ██║██║╚══███═════╣
+     ██████╔╝██║██████╔╝█████╗  ██║ ║ ██║██║  ███╔╝    ║
+══╗  ██╔═══║ ██║██╔═══║ ██╔══╝  ╚██╗║██╔╝██║ ███╔╝ ╔═══╝
+  ║  ██║   ║ ██║██║   ║ ███████╗ ╚██║█╔╝ ██║███████║
+  ╚══║═╝   ║ ╚═╝╚═╣   ║═══║════╝  ╚═╬═╝  ╚═╝╚══════╝
+    ╔╝     ╚══════════╝   ║         ║
+```
 
 A plumbing diagram tool that takes YAML descriptions of plumbing systems and produces Graphviz diagrams. Forked from [WireViz](https://github.com/wireviz/WireViz/) with a schema and rendering model designed for plumbing rather than electrical wiring.
 
