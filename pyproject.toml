@@ -1,2 +1,38 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pipeviz"
+version = "0.1.0"
+description = "Easily document plumbing systems and pipe runs"
+readme = "README.md"
+license = { text = "GPLv3" }
+authors = [{ name = "XDGFX" }]
+requires-python = ">=3.10"
+dependencies = [
+    "click",
+    "pyyaml",
+    "graphviz",
+]
+keywords = ["plumbing", "pipe", "diagram", "graphviz", "yaml"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Utilities",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+
+[project.scripts]
+pipeviz = "pipeviz.pv_cli:pipeviz"
+
+[project.urls]
+Homepage = "https://github.com/xdgfx/pipeviz"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.isort]
 profile = "black"

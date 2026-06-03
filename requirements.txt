@@ -1,5 +1,4 @@
 click
-graphviz
-pillow
 pyyaml
-setuptools
+graphviz
+pytest
