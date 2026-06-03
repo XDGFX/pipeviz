@@ -9,16 +9,17 @@ Edges that flank a pipe node should visually represent the hose:
 - ``size`` drives ``penwidth`` via a linear mm-based scale
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_h_pipe_edge_styling.py -v
 """
 
 import re
-import pytest
-from pipeviz import parse_size_mm, penwidth_from_mm, _pipe_edge_attrs, build_dot
 
+import pytest
+
+from pipeviz import _pipe_edge_attrs, build_dot, parse_size_mm, penwidth_from_mm
 
 # --- helpers ------------------------------------------------------------------
+
 
 def _diag(components, connections, pipes):
     return {"components": components, "pipes": pipes, "connections": connections}
@@ -29,6 +30,7 @@ PUMP = {"label": "Pump", "ports": ["in", "out"]}
 
 
 # --- parse_size_mm ------------------------------------------------------------
+
 
 def test_parse_size_mm_millimetres():
     assert parse_size_mm("25mm") == pytest.approx(25.0)
@@ -64,6 +66,7 @@ def test_parse_size_mm_unrecognised():
 
 # --- penwidth_from_mm ---------------------------------------------------------
 
+
 def test_penwidth_from_mm_scaling():
     assert penwidth_from_mm(25.0) == pytest.approx(25.0 / 3.0)
 
@@ -77,6 +80,7 @@ def test_penwidth_from_mm_clamp_high():
 
 
 # --- _pipe_edge_attrs ---------------------------------------------------------
+
 
 def test_pipe_edge_attrs_explicit_colour():
     spec = {"label": "Hose", "colour": "BU"}
@@ -129,6 +133,7 @@ def test_pipe_edge_attrs_no_penwidth_without_size():
 
 # --- build_dot integration ----------------------------------------------------
 
+
 def test_build_dot_pipe_edge_has_colour():
     diag = _diag(
         {"tank": TANK, "pump": PUMP},
@@ -136,7 +141,7 @@ def test_build_dot_pipe_edge_has_colour():
         pipes={"hose": {"label": "Hose", "colour": "BU", "size": "25mm"}},
     )
     dot = build_dot(diag, "test.yml")
-    edges = re.findall(r'->.*?;', dot)
+    edges = re.findall(r"->.*?;", dot)
     pipe_edges = [e for e in edges if "color" in e]
     assert pipe_edges, "Expected at least one styled edge adjacent to pipe"
 
@@ -148,7 +153,7 @@ def test_build_dot_pipe_edge_has_penwidth():
         pipes={"hose": {"label": "Hose", "colour": "BU", "size": "25mm"}},
     )
     dot = build_dot(diag, "test.yml")
-    edges = re.findall(r'->.*?;', dot)
+    edges = re.findall(r"->.*?;", dot)
     pipe_edges = [e for e in edges if "penwidth" in e]
     assert pipe_edges, "Expected penwidth on pipe-adjacent edges"
 
@@ -160,9 +165,11 @@ def test_build_dot_both_flanking_edges_styled():
         pipes={"hose": {"label": "Hose", "colour": "BU", "size": "25mm"}},
     )
     dot = build_dot(diag, "test.yml")
-    edges = re.findall(r'->.*?;', dot)
+    edges = re.findall(r"->.*?;", dot)
     styled = [e for e in edges if "color" in e]
-    assert len(styled) == 2, f"Expected both flanking edges styled, got {len(styled)}: {styled}"
+    assert (
+        len(styled) == 2
+    ), f"Expected both flanking edges styled, got {len(styled)}: {styled}"
 
 
 def test_build_dot_component_to_component_edge_unstyled():
@@ -172,7 +179,7 @@ def test_build_dot_component_to_component_edge_unstyled():
         pipes={},
     )
     dot = build_dot(diag, "test.yml")
-    edges = re.findall(r'->.*?;', dot)
+    edges = re.findall(r"->.*?;", dot)
     styled = [e for e in edges if "color=" in e]
     assert not styled, f"Expected no styled edges between components, got: {styled}"
 

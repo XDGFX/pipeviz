@@ -37,21 +37,21 @@ Port resolution (default to first port) is NOT done here; that is deferred
 to the rendering stage in Slice E.
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_d_chain_validation.py -v
 
 All tests must be GREEN before handing off to the next agent.
 """
 
 import pytest
-from pipeviz import validate_connections_chain
 
+from pipeviz import validate_connections_chain
 
 COMPONENTS = {"tank", "pump", "valve", "filter", "heater"}
 PIPES = {"pex_half", "pex_quarter", "copper_half"}
 
 
 # --- minimum length ----------------------------------------------------------
+
 
 def test_single_token_chain_raises():
     with pytest.raises(ValueError, match="[Aa]t least two|[Mm]inimum"):
@@ -64,6 +64,7 @@ def test_empty_chain_raises():
 
 
 # --- valid hop types ---------------------------------------------------------
+
 
 def test_direct_component_to_component_is_valid():
     hops = validate_connections_chain(["pump:outlet", "filter:in"], COMPONENTS, PIPES)
@@ -102,11 +103,10 @@ def test_chain_starting_with_pipe_is_valid():
 
 # --- invalid hop types -------------------------------------------------------
 
+
 def test_pipe_to_pipe_hop_raises():
     with pytest.raises(ValueError, match="[Pp]ipe.to.[Pp]ipe|[Aa]djacent pipe"):
-        validate_connections_chain(
-            ["pex_half", "copper_half"], COMPONENTS, PIPES
-        )
+        validate_connections_chain(["pex_half", "copper_half"], COMPONENTS, PIPES)
 
 
 def test_pipe_to_pipe_in_longer_chain_raises():
@@ -119,6 +119,7 @@ def test_pipe_to_pipe_in_longer_chain_raises():
 
 
 # --- unknown references ------------------------------------------------------
+
 
 def test_unknown_component_raises():
     with pytest.raises(ValueError, match="[Uu]nknown|not found"):
@@ -133,6 +134,7 @@ def test_unknown_pipe_raises():
 
 
 # --- named and unnamed instances still resolve to valid components -----------
+
 
 def test_named_instance_resolves_correctly():
     hops = validate_connections_chain(

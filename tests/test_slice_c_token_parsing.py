@@ -29,17 +29,17 @@ Rules:
     this function is purely syntactic and does not consult component/pipe dicts.
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_c_token_parsing.py -v
 
 All tests must be GREEN before handing off to the next agent.
 """
 
 import pytest
+
 from pipeviz import parse_connection_token
 
-
 # --- base component reference ------------------------------------------------
+
 
 def test_bare_name_is_base_ref():
     t = parse_connection_token("tank")
@@ -64,6 +64,7 @@ def test_base_ref_with_numeric_port():
 
 # --- named instance ----------------------------------------------------------
 
+
 def test_named_instance_no_port():
     t = parse_connection_token("tank.a")
     assert t["base_name"] == "tank"
@@ -87,6 +88,7 @@ def test_named_instance_multi_char():
 
 # --- unnamed one-time instance -----------------------------------------------
 
+
 def test_unnamed_instance_bare():
     t = parse_connection_token("tank.")
     assert t["base_name"] == "tank"
@@ -103,6 +105,7 @@ def test_unnamed_instance_with_port():
 
 # --- multi-port token is invalid ---------------------------------------------
 
+
 def test_list_port_syntax_raises():
     with pytest.raises(ValueError, match="[Mm]ulti.port|single port|at most one"):
         parse_connection_token("tank:[in,out]")
@@ -114,6 +117,7 @@ def test_range_port_syntax_raises():
 
 
 # --- edge cases --------------------------------------------------------------
+
 
 def test_empty_string_raises():
     with pytest.raises(ValueError):

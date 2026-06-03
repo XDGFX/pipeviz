@@ -18,17 +18,17 @@ the new component schema rules from ADR 0001 and CONTEXT.md:
 Do NOT change the function signature.
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_b_component_validation.py -v
 
 All tests must be GREEN before handing off to the next agent.
 """
 
 import pytest
+
 from pipeviz import validate_diagram
 
-
 # --- helpers -----------------------------------------------------------------
+
 
 def _diagram(components, connections=None):
     d = {"components": components, "pipes": {}}
@@ -45,6 +45,7 @@ def _two_port_components():
 
 
 # --- label requirement -------------------------------------------------------
+
 
 def test_component_missing_label_raises():
     diag = _diagram(
@@ -65,6 +66,7 @@ def test_empty_label_raises():
 
 
 # --- ports / portcount requirement -------------------------------------------
+
 
 def test_component_with_neither_ports_nor_portcount_raises():
     diag = _diagram(
@@ -107,6 +109,7 @@ def test_portcount_only_component_passes():
 
 
 # --- connections requirement -------------------------------------------------
+
 
 def test_diagram_with_connections_passes():
     diag = _diagram(_two_port_components(), connections=[["tank:outlet", "pump:inlet"]])

@@ -18,13 +18,13 @@ Do NOT change the public function signatures; only the return type of
 normalise_ports changes.
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_a_port_normalisation.py -v
 
 All tests must be GREEN before handing off to the next agent.
 """
 
 import pytest
+
 from pipeviz import normalise_ports
 
 

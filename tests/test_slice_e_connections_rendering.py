@@ -33,18 +33,19 @@ in normalise_ports(spec)["name"]; raise ValueError if the component has no
 ports at all.
 
 Run these tests with:
-  cd /Users/cal/git/truck_2025_plumbing
   python -m pytest tests/test_slice_e_connections_rendering.py -v
 
 All tests must be GREEN before handing off to the next agent.
 """
 
 import re
+
 import pytest
+
 from pipeviz import build_dot, validate_diagram
 
-
 # --- helpers -----------------------------------------------------------------
+
 
 def _make_diagram(components, pipes=None, connections=None, edges=None):
     d = {"components": components, "pipes": pipes or {}}
@@ -71,6 +72,7 @@ PEX_PIPE = {"pex": {"label": '1/2" PEX'}}
 
 # --- direct component-to-component connection --------------------------------
 
+
 def test_direct_connection_renders_both_nodes_and_edge():
     diag = _make_diagram(TWO_COMPS, connections=[["pump:outlet", "filter:in"]])
     dot = build_dot(diag, "test.yml")
@@ -87,6 +89,7 @@ def test_direct_connection_port_appears_in_edge():
 
 
 # --- pipe-mediated connection ------------------------------------------------
+
 
 def test_pipe_node_rendered_for_pipe_usage():
     diag = _make_diagram(
@@ -113,6 +116,7 @@ def test_pipe_mediated_connection_has_two_edges():
 
 # --- pipe uniqueness ---------------------------------------------------------
 
+
 def test_two_usages_of_same_pipe_type_yield_distinct_node_ids():
     comps = {
         "a": {"label": "A", "ports": ["out"]},
@@ -129,11 +133,12 @@ def test_two_usages_of_same_pipe_type_yield_distinct_node_ids():
     )
     dot = build_dot(diag, "test.yml")
     # At least two distinct pex node IDs (e.g. pex__0 and pex__1)
-    pex_ids = set(re.findall(r'pex__\d+', dot))
+    pex_ids = set(re.findall(r"pex__\d+", dot))
     assert len(pex_ids) >= 2
 
 
 # --- port defaulting ---------------------------------------------------------
+
 
 def test_omitted_port_defaults_to_first_port():
     # Token "pump" with no port — should default to "inlet" (first port of pump)
@@ -145,6 +150,7 @@ def test_omitted_port_defaults_to_first_port():
 
 
 # --- validation: unknown pipe type -------------------------------------------
+
 
 def test_unknown_pipe_type_in_connections_fails_validation():
     diag = _make_diagram(
@@ -158,6 +164,7 @@ def test_unknown_pipe_type_in_connections_fails_validation():
 
 # --- validation: unknown component in chain ----------------------------------
 
+
 def test_unknown_component_in_connections_fails_validation():
     diag = _make_diagram(
         TWO_COMPS,
@@ -169,6 +176,7 @@ def test_unknown_component_in_connections_fails_validation():
 
 
 # --- validation: bad port in chain -------------------------------------------
+
 
 def test_nonexistent_port_in_connections_fails_validation():
     diag = _make_diagram(
