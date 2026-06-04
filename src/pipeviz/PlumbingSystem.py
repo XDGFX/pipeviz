@@ -136,6 +136,7 @@ class PlumbingSystem:
                     emitted_nodes.add(ti["node_id"])
 
             reversed_state = False
+            anchored_nodes: set = set()
             for hop_idx in range(len(hops)):
                 fi = token_info[hop_idx]
                 ti = token_info[hop_idx + 1]
@@ -144,14 +145,6 @@ class PlumbingSystem:
                 pre_flip = reversed_state
                 if at_flip:
                     reversed_state = True
-                    if (
-                        hop_idx >= 1
-                        and not token_info[hop_idx - 1]["is_pipe"]
-                        and not ti["is_pipe"]
-                    ):
-                        prev_id = dot_quote(token_info[hop_idx - 1]["node_id"])
-                        next_id = dot_quote(ti["node_id"])
-                        lines.append(f"  {{rank=same; {prev_id}; {next_id}}}")
                 post_flip = reversed_state
 
                 if fi["is_pipe"]:
@@ -209,6 +202,13 @@ class PlumbingSystem:
                 )
                 suffix = f" {edge_attrs}" if edge_attrs else ""
                 lines.append(f"  {tail} -> {head}{suffix};")
+
+                if post_flip and ti["node_id"] not in anchored_nodes:
+                    anchored_nodes.add(ti["node_id"])
+                    lines.append(
+                        f"  {dot_quote(ti['node_id'])} -> {dot_quote(fi['node_id'])}"
+                        f" [style=invis];"
+                    )
 
         lines.append("}")
         return "\n".join(lines) + "\n"

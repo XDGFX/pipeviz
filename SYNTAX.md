@@ -150,7 +150,7 @@ Setting `service_rating` on a pipe also applies a fill and border colour to the 
 | `component.name:port` | Named instance, specific port |
 | `component.:port` | Unnamed instance — fresh occurrence each time |
 | `pipe_type` | Creates a unique unnamed pipe run |
-| `pipe_type^` | Reversed pipe run — flips direction of subsequent connections. Adds `constraint=false` to reversed edges. |
+| `pipe_type^` | Reversed pipe run — flips direction of subsequent connections. Connecting components are ranked below the pipe; `constraint=false` is added to reversed edges so they are not locked to a specific level below it. |
 
 ### Rules
 
