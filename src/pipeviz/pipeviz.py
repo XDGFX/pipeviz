@@ -341,42 +341,13 @@ def write_graphviz_output(dot_text: str, format_type: str, output_path) -> None:
 # Main parse entry point (mirrors wireviz.parse())
 # ---------------------------------------------------------------------------
 
-def parse(
-    file_path,
-    prepend_paths: list | None = None,
-    format_type: str = "svg",
-    output_dir=None,
-    output_name: str | None = None,
-) -> None:
-    """Parse a pipeviz YAML file and render output.
+_SUFFIXES = {"svg": ".svg", "png": ".png", "html": ".html", "gv": ".gv"}
 
-    Parameters
-    ----------
-    file_path:
-        Path to the diagram YAML file.
-    prepend_paths:
-        Optional list of YAML files whose contents are merged before the
-        diagram data (provides shared component libraries and templates).
-    format_type:
-        Output format — ``"svg"``, ``"png"``, ``"html"``, or ``"gv"``.
-    output_dir:
-        Directory for output files.  Defaults to the same directory as
-        ``file_path``.
-    output_name:
-        Base filename (without extension).  Defaults to the stem of
-        ``file_path``.
-    """
+
+def resolve_diagram(file_path, prepend_paths=None) -> dict:
+    """Load a YAML file (with prepends) and return a fully resolved diagram dict."""
     file_path = Path(file_path)
-    if output_dir is None:
-        output_dir = file_path.parent
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
 
-    stem = output_name or file_path.stem
-    suffix = {"svg": ".svg", "png": ".png", "html": ".html", "gv": ".gv"}[format_type]
-    output_path = output_dir / f"{stem}{suffix}"
-
-    # Build shared data from all prepend files, merged left-to-right.
     shared_data: dict = {}
     for p in (prepend_paths or []):
         if Path(p).exists():
@@ -409,10 +380,111 @@ def parse(
     diagram["components"] = resolved_components
     diagram["connections"] = diagram_data.get("connections", [])
     diagram["pipes"] = diagram_data.get("pipes", {})
+    return diagram
 
+
+def parse(
+    file_path,
+    prepend_paths: list | None = None,
+    format_type: str = "svg",
+    output_dir=None,
+    output_name: str | None = None,
+) -> None:
+    """Parse a pipeviz YAML file and render output."""
+    file_path = Path(file_path)
+    if output_dir is None:
+        output_dir = file_path.parent
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    stem = output_name or file_path.stem
+    output_path = output_dir / f"{stem}{_SUFFIXES[format_type]}"
+
+    diagram = resolve_diagram(file_path, prepend_paths)
     validate_diagram(diagram, file_path)
 
     system = PlumbingSystem(diagram, file_path)
+    dot_text = system.build_dot()
+
+    write_graphviz_output(dot_text, format_type, output_path)
+
+
+# ---------------------------------------------------------------------------
+# Combined diagram support
+# ---------------------------------------------------------------------------
+
+def prefix_connection_token(token: str, prefix: str) -> str:
+    """Rebuild a connection token with the base name prefixed."""
+    parsed = parse_connection_token(token)
+    name = prefix + parsed["base_name"]
+    if parsed["instance"] is not None:
+        name = f"{name}.{parsed['instance']}"
+    if parsed["reversed"]:
+        name = f"{name}^"
+    if parsed["port"] is not None:
+        return f"{name}:{parsed['port']}"
+    return name
+
+
+def combine_diagrams(resolved_diagrams: list) -> dict:
+    """Merge resolved diagram dicts into one, namespacing each by its file stem."""
+    combined_components: dict = {}
+    combined_pipes: dict = {}
+    combined_connections: list = []
+    first_diagram_settings: dict = {}
+
+    for idx, (diagram, file_path) in enumerate(resolved_diagrams):
+        stem = Path(file_path).stem
+        prefix = f"{stem}__"
+
+        if idx == 0:
+            first_diagram_settings = diagram.get("diagram", {})
+
+        for name, spec in diagram.get("components", {}).items():
+            combined_components[prefix + name] = spec
+
+        for name, spec in diagram.get("pipes", {}).items():
+            combined_pipes[prefix + name] = spec
+
+        for chain in diagram.get("connections", []):
+            combined_connections.append(
+                [prefix_connection_token(token, prefix) for token in chain]
+            )
+
+    title = " + ".join(Path(fp).stem for _, fp in resolved_diagrams)
+    diagram_settings = {**first_diagram_settings, "title": title}
+
+    return {
+        "diagram": diagram_settings,
+        "components": combined_components,
+        "pipes": combined_pipes,
+        "connections": combined_connections,
+    }
+
+
+def parse_combined(
+    file_paths,
+    prepend_paths=None,
+    format_type: str = "svg",
+    output_dir=None,
+    output_name: str = "combined",
+) -> None:
+    """Resolve multiple diagram files and render them as a single combined diagram."""
+    resolved = []
+    for fp in file_paths:
+        fp = Path(fp)
+        diagram = resolve_diagram(fp, prepend_paths)
+        validate_diagram(diagram, fp)
+        resolved.append((diagram, fp))
+
+    combined = combine_diagrams(resolved)
+
+    out_dir = Path(output_dir) if output_dir else Path.cwd()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    output_path = out_dir / f"{output_name}{_SUFFIXES[format_type]}"
+
+    combined_path = Path(output_name)
+    system = PlumbingSystem(combined, combined_path)
     dot_text = system.build_dot()
 
     write_graphviz_output(dot_text, format_type, output_path)

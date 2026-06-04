@@ -23,11 +23,15 @@ from pipeviz.pv_gv_html import (  # noqa: F401
 from pipeviz.PlumbingSystem import PlumbingSystem  # noqa: F401
 from pipeviz.pipeviz import (  # noqa: F401
     build_dot,
+    combine_diagrams,
     deep_merge,
     load_yaml_file,
     parse,
+    parse_combined,
     parse_connection_token,
+    prefix_connection_token,
     resolve_component,
+    resolve_diagram,
     resolve_template,
     validate_connections_chain,
     validate_diagram,
