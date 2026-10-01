@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Archived.** pipeviz is superseded by **[ferrule](https://github.com/XDGFX/ferrule)**, which
+> reads the same YAML (components, pipes and `connections` chains, as in [SYNTAX.md](SYNTAX.md))
+> and draws it without Graphviz, with dark mode and byte-identical output on every machine.
+> Legacy `edges` and the `--combined` sheet were not carried over.
+
 ```
           ║        ║   ║════╗
           ╚════╗   ╚═══║════║═══════╗                  ╔════
